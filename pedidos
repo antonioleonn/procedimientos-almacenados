@@ -1,0 +1,27 @@
+delete pd from bi_peddet pd
+inner join 
+(select  serie,num from bi_pedped 
+where  fec_ped between GETDATE()-16 and GETDATE()-1 and status  in ('FA', 'FAX', 'FAP', 'TI', 'TIF', 'FAD' )) ped on
+(ped.serie=pd.serie  and ped.num=pd.cve)
+	
+----------------------------
+
+delete   from bi_pedped WHERE fec_ped between GETDATE()-16 and GETDATE()-1
+	
+----------------------------
+
+insert into dw.dbo.bi_pedped
+  select  serie,num,par,status,for_pgo,ven,cte,rfc_cte,fec_ped,SUBSTRING(fec_ped, 1,4 ) anio_ped,SUBSTRING(fec_ped, 5, 2) mes_ped,
+sub_tot,cos_tot ,dep_sur
+  from pedped 
+  where fec_ped between GETDATE()-16 and GETDATE()-1 and status in ('FA', 'FAX', 'FAP', 'TI', 'TIF', 'FAD' )
+
+----------------------------
+
+insert into dw.dbo.bi_peddet
+select pd.serie,cve,cve_art,sur,dev,precio,costo,total,emp 
+from peddet pd
+inner join 
+(select  serie,num from dw.dbo.bi_pedped 
+where  fec_ped between GETDATE()-16 and GETDATE()-1 and status  in ('FA', 'FAX', 'FAP', 'TI', 'TIF', 'FAD' )) ped on
+(ped.serie=pd.serie  and ped.num=pd.cve)
